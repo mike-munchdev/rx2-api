@@ -8,9 +8,15 @@ const typeDefs = gql`
     address2: String
     city: String
     state: String
-    state: String
     isDefault: Boolean
     isDelivery: Boolean
+  }
+
+  type PaymentMethods {
+    id: ID!
+    stripeId: String
+    isDefault: Boolean
+    isActive: Boolean
   }
 `;
 

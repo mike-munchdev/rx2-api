@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +13,7 @@
     "apollo-server-express": "^2.12.0",
     "axios": "^0.19.2",
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -20,6 +22,7 @@
     "graphql": "^15.0.0",
     "graphql-subscriptions": "^1.1.0",
     "helmet": "^3.22.0",
+    "is-phone": "^2.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.15",
     "merge-graphql-schemas": "^1.7.8",
@@ -28,8 +31,7 @@
     "nodemailer": "^6.4.6",
     "shortid": "^2.2.15",
     "subscriptions-transport-ws": "^0.9.16",
-    "validator": "^13.0.0",
-    "body-parser": "^1.18.3"
+    "validator": "^13.0.0"
   },
   "devDependencies": {
     "dotenv": "^8.2.0"

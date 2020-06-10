@@ -8,17 +8,17 @@ const cookieParser = require('cookie-parser');
 const { ApolloServer } = require('apollo-server-express');
 const context = require('./server/utils/context');
 const helment = require('helmet');
-const logger = require('./server/utils/logger');
-const creditsoft = require('./server/routes/creditsoft');
-const { validateToken, findCustomer } = require('./server/utils/tokens');
+
+const {
+  validateToken,
+  findCustomerByToken,
+} = require('./server/utils/authentication');
 
 // Provide schemas for apollo server
 const typeDefs = require('./server/schemas/index');
 
 // Provide resolver functions for your schema fields
 const resolvers = require('./server/resolvers/index');
-
-const log = logger('meredian-api');
 
 (async () => {
   // initialize server
@@ -41,8 +41,6 @@ const log = logger('meredian-api');
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, 'public')));
 
-  app.use('/creditsoft', creditsoft(log));
-
   const server = new ApolloServer({
     typeDefs,
     resolvers,
@@ -55,7 +53,7 @@ const log = logger('meredian-api');
               return { isAdmin: true };
 
             const decoded = await validateToken(connectionParams['x-auth']);
-            const user = await findCustomer(decoded);
+            const user = await findCustomerByToken(decoded);
 
             return { user, isAdmin: false };
           }

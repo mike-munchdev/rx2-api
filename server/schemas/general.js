@@ -5,7 +5,7 @@ const typeDefs = gql`
   type GeneralResponse {
     ok: Boolean!
     message: String
-    errors: [Error!]
+    error: Error
   }
 `;
 
