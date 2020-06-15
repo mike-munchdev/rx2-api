@@ -37,6 +37,11 @@ module.exports = {
     },
   },
   Mutation: {
+    customerSignUp: async (parent, { input }, { isAdmin }) => {
+      try {
+        await connectDatabase();
+      } catch (error) {}
+    },
     updateCustomerPassword: async (parent, { input }, { isAdmin }) => {
       try {
         await connectDatabase();

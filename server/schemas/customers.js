@@ -56,6 +56,7 @@ const typeDefs = gql`
     createCustomer(input: CreateCustomerInput!): CustomerResponse
     updateCustomer(input: UpdateCustomerInput!): CustomerResponse
     updateCustomerPassword(input: UpdateCustomerPassword!): GeneralResponse
+    customerSignUp(input: CreateCustomerInput!): CustomerResponse
   }
 `;
 
