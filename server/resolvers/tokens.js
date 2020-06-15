@@ -1,70 +1,42 @@
 const moment = require('moment');
-
-const CustomerCode = require('../models/CustomerCode');
+const { comparePassword } = require('../utils/authentication');
 const { ERRORS } = require('../constants/errors');
 const convertError = require('../utils/convertErrors');
-const { generateToken } = require('../utils/tokens');
-const User = require('../models/User');
-
+const { generateToken } = require('../utils/authentication');
+const Customer = require('../models/Customer');
 const connectDatabase = require('../models/connectDatabase');
 
-const createTokenResponse = ({ ok, token = null, errors = null }) => ({
+const createTokenResponse = ({ ok, token = null, error = null }) => ({
   ok,
   token,
-  errors,
+  error,
 });
 
-const getUserFromUserNameAndPassword = ({ username, password }) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let customer;
-      if (username && password) {
-        const customerCode = await CustomerCode.findOne({
-          email: username,
-          password,
-        });
-        if (!customerCode) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
-        const expiry = moment(customerCode.expiry);
-        const now = moment();
-        if (expiry.isBefore(now)) throw new Error(ERRORS.CODE.EXPIRED);
-
-        // TODO: check for accounts in db for this user/code
-        const customer = await Customer.findOne({
-          phoneNumber,
-          _id: customerCode.customerId,
-        });
-        customer.code = customerCode.code;
-        resolve(customer);
-      } else if (customerId) {
-        const customer = await Customer.findById(customerId);
-        resolve(customer);
-      }
-      if (!customer) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
-    } catch (error) {
-      console.log('error', error);
-      reject(error);
-    }
-  });
-};
 module.exports = {
   Query: {
-    getTokenByUserNameAndPassword: async (
+    getCustomerTokenByEmailAndPassword: async (
       parent,
-      { username, password },
+      { email, password },
       context
     ) => {
       try {
         await connectDatabase();
+        const customer = await Customer.findOne({ email });
 
-        const user = await getUserFromUserNameAndPassword({
-          username,
-          password,
+        if (!customer)
+          throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
+
+        const isMatch = await comparePassword({
+          password: customer.password,
+          candidatePassword: password,
         });
+
+        if (!isMatch)
+          throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
 
         const token = await generateToken({
           user: {
             displayName: `${customer.firstName} ${customer.lastName}`,
-            code: customer.code,
             id: customer.id,
           },
           type: 'Customer',
@@ -78,7 +50,7 @@ module.exports = {
         console.log('error', error);
         return createTokenResponse({
           ok: false,
-          errors: convertError(error),
+          error: convertError(error),
         });
       }
     },

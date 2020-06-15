@@ -1,8 +1,9 @@
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Customer = require('../models/Customer');
 const connectDatabase = require('../models/connectDatabase');
 
-const validateToken = (token, secret) => {
+module.exports.validateToken = (token, secret) => {
   return new Promise((resolve, reject) => {
     try {
       const decoded = jwt.verify(token, secret);
@@ -14,7 +15,7 @@ const validateToken = (token, secret) => {
   });
 };
 
-const findCustomer = (decoded) => {
+module.exports.findCustomerByToken = (decoded) => {
   return new Promise(async (resolve, reject) => {
     try {
       if (decoded.info.code) {
@@ -30,7 +31,7 @@ const findCustomer = (decoded) => {
   });
 };
 
-const generateToken = ({ user, type }) => {
+module.exports.generateToken = ({ user, type }) => {
   return new Promise(async (resolve, reject) => {
     try {
       const today = new Date();
@@ -53,4 +54,28 @@ const generateToken = ({ user, type }) => {
   });
 };
 
-module.exports = { validateToken, findCustomer, generateToken };
+module.exports.comparePassword = ({ password, candidatePassword }) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      if (!password) {
+        throw new Error('Password not set.');
+      }
+
+      const isMatch = await bcrypt.compare(candidatePassword, password);
+
+      resolve(isMatch);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+module.exports.hashPassword = async (password) => {
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  } catch (error) {
+    console.log('hash error', error);
+  }
+};

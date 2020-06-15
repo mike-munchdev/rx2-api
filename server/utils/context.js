@@ -3,7 +3,7 @@ const {
   SchemaError,
   ForbiddenError,
 } = require('apollo-server-express');
-const { validateToken, findCustomer } = require('./tokens');
+const { validateToken, findCustomerByToken } = require('./authentication');
 
 module.exports = async (args) => {
   try {
@@ -23,7 +23,7 @@ module.exports = async (args) => {
 
         if (arr.length)
           if (
-            arr[1].includes('getTokenByCodeAndPhoneNumber(') ||
+            arr[1].includes('getCustomerTokenByEmailAndPassword(') ||
             arr[0].includes('query IntrospectionQuery {')
           ) {
             return { req, res: args.res };
@@ -32,7 +32,7 @@ module.exports = async (args) => {
 
             const decoded = await validateToken(token, process.env.JWT_SECRET);
 
-            user = await findCustomer(decoded);
+            user = await findCustomerByToken(decoded);
 
             if (!user) {
               const ip =

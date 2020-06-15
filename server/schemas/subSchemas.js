@@ -4,13 +4,20 @@ const { gql } = require('apollo-server-express');
 const typeDefs = gql`
   type Address {
     id: ID!
-    address: String
+    address: String!
     address2: String
-    city: String
-    state: String
-    state: String
+    city: String!
+    state: String!
+    zipCode: String!
+    isDefault: Boolean!
+    isDelivery: Boolean!
+  }
+
+  type PaymentMethods {
+    id: ID!
+    stripeId: String
     isDefault: Boolean
-    isDelivery: Boolean
+    isActive: Boolean
   }
 `;
 

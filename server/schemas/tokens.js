@@ -5,15 +5,14 @@ const typeDefs = gql`
   type TokenResponse {
     ok: Boolean!
     token: String
-    errors: [Error!]
+    error: Error
   }
 
   type Query {
-    getTokenByCodeAndPhoneNumber(
-      code: String!
-      phoneNumber: String!
+    getCustomerTokenByEmailAndPassword(
+      email: String!
+      password: String!
     ): TokenResponse
-    getTokenByCustomerId(customerId: String!): TokenResponse
   }
 `;
 
