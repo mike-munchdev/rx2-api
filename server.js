@@ -19,6 +19,7 @@ const typeDefs = require('./server/schemas/index');
 
 // Provide resolver functions for your schema fields
 const resolvers = require('./server/resolvers/index');
+// const { importDrugs } = require('./server/utils/importDrugs');
 
 (async () => {
   // initialize server
@@ -83,5 +84,9 @@ const resolvers = require('./server/resolvers/index');
     console.log(
       `🚀 GraphQL Subscriptions ready at ws://${ipaddr}:${PORT}${server.subscriptionsPath}`
     );
+
+    (async () => {
+      // await importDrugs();
+    })();
   });
 })();
