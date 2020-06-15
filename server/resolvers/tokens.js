@@ -24,12 +24,15 @@ module.exports = {
         const customer = await Customer.findOne({ email });
 
         if (!customer)
-          throw new Error(ERRORS.CUSTOMER.NOT_FOUND_WITH_PROVIDED_INFO);
+          throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
 
         const isMatch = await comparePassword({
           password: customer.password,
           candidatePassword: password,
         });
+
+        if (!isMatch)
+          throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
 
         const token = await generateToken({
           user: {

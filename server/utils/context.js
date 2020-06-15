@@ -23,7 +23,7 @@ module.exports = async (args) => {
 
         if (arr.length)
           if (
-            arr[1].includes('getTokenByCodeAndPhoneNumber(') ||
+            arr[1].includes('getCustomerTokenByEmailAndPassword(') ||
             arr[0].includes('query IntrospectionQuery {')
           ) {
             return { req, res: args.res };

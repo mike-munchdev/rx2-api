@@ -4,12 +4,13 @@ const { gql } = require('apollo-server-express');
 const typeDefs = gql`
   type Address {
     id: ID!
-    address: String
+    address: String!
     address2: String
-    city: String
-    state: String
-    isDefault: Boolean
-    isDelivery: Boolean
+    city: String!
+    state: String!
+    zipCode: String!
+    isDefault: Boolean!
+    isDelivery: Boolean!
   }
 
   type PaymentMethods {
