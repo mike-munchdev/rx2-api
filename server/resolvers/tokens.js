@@ -5,12 +5,7 @@ const convertError = require('../utils/convertErrors');
 const { generateToken } = require('../utils/authentication');
 const Customer = require('../models/Customer');
 const connectDatabase = require('../models/connectDatabase');
-
-const createTokenResponse = ({ ok, token = null, error = null }) => ({
-  ok,
-  token,
-  error,
-});
+const { createTokenResponse } = require('../utils/responses');
 
 module.exports = {
   Query: {
@@ -47,7 +42,6 @@ module.exports = {
           token,
         });
       } catch (error) {
-        console.log('error', error);
         return createTokenResponse({
           ok: false,
           error: convertError(error),

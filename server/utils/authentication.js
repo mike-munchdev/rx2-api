@@ -48,7 +48,6 @@ module.exports.generateToken = ({ user, type }) => {
 
       resolve(token);
     } catch (e) {
-      console.log('e', e);
       reject(e);
     }
   });
@@ -76,6 +75,6 @@ module.exports.hashPassword = async (password) => {
     const hash = await bcrypt.hash(password, salt);
     return hash;
   } catch (error) {
-    console.log('hash error', error);
+    console.log('hashPassword error', error);
   }
 };

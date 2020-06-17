@@ -108,7 +108,6 @@ module.exports = {
     },
     customerSignup: async (parent, { input }, { isAdmin }) => {
       try {
-        console.log('customerSignup');
         await connectDatabase();
 
         // TODO: check for unique email
@@ -146,7 +145,6 @@ module.exports = {
           message: RESPONSES.CUSTOMER.SIGNUP_SUCCESSFUL,
         });
       } catch (error) {
-        console.log('error', error);
         return createGeneralResponse({
           ok: false,
           error: convertError(error),

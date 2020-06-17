@@ -47,7 +47,7 @@ const resolvers = require('./server/resolvers/index');
     resolvers,
     context,
     formatError: (err) => {
-      console.log('formatError', err);
+      console.log('graphql: error', err);
       return err;
     },
     subscriptions: {
