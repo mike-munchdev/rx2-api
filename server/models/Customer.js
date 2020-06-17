@@ -13,9 +13,9 @@ const CustomerSchema = new mongoose.Schema({
     unique: true,
   },
   password: { type: String, required: false },
-  firstName: { type: String, required: true },
+  firstName: { type: String, required: false },
   middleName: { type: String, required: false },
-  lastName: { type: String, required: true },
+  lastName: { type: String, required: false },
   suffix: { type: String, required: false },
   phoneNumber: {
     type: String,
@@ -32,6 +32,8 @@ const CustomerSchema = new mongoose.Schema({
   stripeId: { type: String },
   googleId: { type: String },
   facebookId: { type: String },
+  isActive: { type: Boolean, default: false },
+  confirmToken: { type: String },
 });
 
 // TODO: encrypt password in database;

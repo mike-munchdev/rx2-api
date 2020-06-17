@@ -9,7 +9,6 @@ module.exports.importDrugs = async () => {
     try {
       await connectDatabase();
 
-      console.log('process.env', process.env);
       const uri = process.env.FDA_DRUG_FILE_URI;
       const fdaFileName = 'drug-ndc-0001-of-0001.json';
 

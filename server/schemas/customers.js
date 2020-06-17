@@ -48,6 +48,11 @@ const typeDefs = gql`
     password: String!
   }
 
+  input CustomerSignupInput {
+    email: String!
+    password: String!
+  }
+
   type Query {
     getCustomerById(customerId: String!): CustomerResponse
   }
@@ -56,7 +61,7 @@ const typeDefs = gql`
     createCustomer(input: CreateCustomerInput!): CustomerResponse
     updateCustomer(input: UpdateCustomerInput!): CustomerResponse
     updateCustomerPassword(input: UpdateCustomerPassword!): GeneralResponse
-    customerSignUp(input: CreateCustomerInput!): CustomerResponse
+    customerSignup(input: CustomerSignupInput!): GeneralResponse
   }
 `;
 
