@@ -46,6 +46,10 @@ const resolvers = require('./server/resolvers/index');
     typeDefs,
     resolvers,
     context,
+    formatError: (err) => {
+      console.log('formatError', err);
+      return err;
+    },
     subscriptions: {
       onConnect: async (connectionParams, webSocket) => {
         try {

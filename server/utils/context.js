@@ -20,14 +20,17 @@ module.exports = async (args) => {
         // admin pass-through
         if (token === process.env.PASSTHROUGH_TOKEN)
           return { req, res: args.res, isAdmin: true };
-
+        console.log('arr', arr[1]);
         if (arr.length)
           if (
             arr[1].includes('getCustomerTokenByEmailAndPassword(') ||
+            arr[1].includes('customerSignup(') ||
             arr[0].includes('query IntrospectionQuery {')
           ) {
+            console.log('moving right along');
             return { req, res: args.res };
           } else {
+            console.log('checking token');
             if (!token) throw new ForbiddenError('missing token');
 
             const decoded = await validateToken(token, process.env.JWT_SECRET);
@@ -47,9 +50,11 @@ module.exports = async (args) => {
             return { user, req: args.req, res: args.res };
           }
       } else {
+        console.log('invalid schema');
         throw new SchemaError('Schema invalid');
       }
     } else {
+      console.log('args.req');
       const isAdmin = args.connection.context.isAdmin;
       const user = args.connection.context.user;
       return { user, isAdmin };
