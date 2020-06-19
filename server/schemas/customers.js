@@ -15,6 +15,7 @@ const typeDefs = gql`
     stripeId: String
     googleId: String
     facebookId: String
+    createdAt: Date!
   }
 
   type CustomerResponse {
@@ -41,6 +42,7 @@ const typeDefs = gql`
     lastName: String
     suffix: String
     phoneNumber: String
+    isActive: Boolean
   }
 
   input UpdateCustomerPassword {

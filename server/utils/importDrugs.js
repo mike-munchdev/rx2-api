@@ -28,7 +28,10 @@ module.exports.importDrugs = async () => {
       console.log(`Parsing JSON from ${uri}.`);
 
       const { results } = JSON.parse(drugs);
-      const activeDrugs = results.filter((d) => d.finished === true);
+      const activeDrugs = results.filter(
+        (d) =>
+          d.finished === true && d.product_type === 'HUMAN PRESCRIPTION DRUG'
+      );
       console.log('Deleting old data.');
 
       console.log(`Adding ${activeDrugs.length} records.`);

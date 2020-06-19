@@ -6,6 +6,7 @@ const connectDatabase = require('../models/connectDatabase');
 module.exports.validateToken = (token, secret) => {
   return new Promise((resolve, reject) => {
     try {
+      console.log('token, secret', token, secret);
       const decoded = jwt.verify(token, secret);
 
       resolve(decoded);
@@ -18,7 +19,7 @@ module.exports.validateToken = (token, secret) => {
 module.exports.findCustomerByToken = (decoded) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (decoded.info.code) {
+      if (decoded.info.id) {
         await connectDatabase();
         const customer = await Customer.findById(decoded.info.id);
         resolve(customer);

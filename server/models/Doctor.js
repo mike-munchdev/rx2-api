@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 const isPhone = require('is-phone');
-const { addressSchema, paymentMethodSchema } = require('./subDocuments');
+const { addressSchema } = require('./subDocuments');
 
-const CustomerSchema = new mongoose.Schema({
+const DoctorSchema = new mongoose.Schema({
   email: {
     type: String,
     validate: {
@@ -12,10 +12,10 @@ const CustomerSchema = new mongoose.Schema({
     },
     unique: true,
   },
-  password: { type: String, required: false },
   firstName: { type: String, required: false },
   middleName: { type: String, required: false },
   lastName: { type: String, required: false },
+  prefix: { type: String, required: false },
   suffix: { type: String, required: false },
   phoneNumber: {
     type: String,
@@ -25,24 +25,22 @@ const CustomerSchema = new mongoose.Schema({
     },
     required: false,
   },
-  addresses: [addressSchema],
-  paymentMethods: [paymentMethodSchema],
+  address: addressSchema,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  stripeId: { type: String },
-  googleId: { type: String },
-  facebookId: { type: String },
   isActive: { type: Boolean, default: false },
-  confirmToken: { type: String },
 });
 
-// TODO: encrypt password in database;
-CustomerSchema.pre('save', async function () {
-  const customer = this;
-  if (customer.isModified('password')) {
-    const { hashPassword } = require('../utils/authentication');
-    customer.password = await hashPassword(customer.password);
-  }
+DoctorSchema.method('transform', function () {
+  var obj = this.toObject();
+  console.log('doctor transform');
+  //Rename fields
+  obj.address.id = obj.address._id;
+  obj.id = obj._id;
+  delete obj._id;
+  delete obj.address._id;
+
+  return obj;
 });
 
-module.exports = mongoose.model('Customer', CustomerSchema);
+module.exports = mongoose.model('Doctor', DoctorSchema);

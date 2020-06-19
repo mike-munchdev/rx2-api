@@ -11,13 +11,14 @@ module.exports.addressSchema = new mongoose.Schema({
   type: { type: String },
 });
 
-module.exports.paymentTypeSchema = new mongoose.Schema({
+module.exports.paymentMethodSchema = new mongoose.Schema({
   stripeId: { type: String },
   isDefault: { type: Boolean },
   isActive: { type: Boolean },
 });
 
 module.exports.refillsSchema = new mongoose.Schema({
+  filledDate: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

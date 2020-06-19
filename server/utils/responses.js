@@ -32,3 +32,27 @@ module.exports.createTokenResponse = ({ ok, token = null, error = null }) => {
     error,
   };
 };
+module.exports.createRxResponse = ({ ok, rx = null, error = null }) => {
+  if (error) console.log('error', error);
+  return {
+    ok,
+    rx,
+    error,
+  };
+};
+module.exports.createDoctorResponse = ({ ok, doctor = null, error = null }) => {
+  if (error) console.log('error', error);
+  return {
+    ok,
+    doctor,
+    error,
+  };
+};
+module.exports.createRxsResponse = ({ ok, rxs = null, error = null }) => {
+  if (error) console.log('error', error);
+  return {
+    ok,
+    rxs,
+    error,
+  };
+};

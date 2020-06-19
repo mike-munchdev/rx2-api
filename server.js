@@ -19,7 +19,7 @@ const typeDefs = require('./server/schemas/index');
 
 // Provide resolver functions for your schema fields
 const resolvers = require('./server/resolvers/index');
-// const { importDrugs } = require('./server/utils/importDrugs');
+const { importDrugs } = require('./server/utils/importDrugs');
 
 (async () => {
   // initialize server
