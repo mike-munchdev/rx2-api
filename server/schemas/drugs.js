@@ -4,9 +4,9 @@ const { gql } = require('apollo-server-express');
 const typeDefs = gql`
   type Drug {
     id: ID!
-    brandName: String
-    labelerName: String
-    genericName: String
+    brand_name: String
+    labeler_name: String
+    generic_name: String
   }
 `;
 

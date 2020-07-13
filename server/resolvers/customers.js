@@ -1,3 +1,4 @@
+const { withFilter } = require('apollo-server-express');
 const randomstring = require('randomstring');
 const { ERRORS } = require('../constants/errors');
 const convertError = require('../utils/convertErrors');
@@ -11,6 +12,13 @@ const {
   createGeneralResponse,
 } = require('../utils/responses');
 const { RESPONSES } = require('../constants/responses');
+const pubsub = require('../utils/pubsub');
+const { CART_MODIFIED } = require('../constants/triggers');
+const { pick, omit } = require('lodash');
+const {
+  cartPopulateObject,
+  settingsPopulateObject,
+} = require('../utils/populateObjects');
 
 module.exports = {
   Query: {
@@ -41,19 +49,64 @@ module.exports = {
       try {
         await connectDatabase();
         // TODO: check for accounts in db for this customer/code
-        let customer = await Customer.findOneAndUpdate(
+        console.log('updateCustomerPassword');
+        let customer = await Customer.findById(input.customerId);
+        console.log('customer', customer);
+
+        if (!customer)
+          throw new Error('No customer found with the provided information.');
+
+        customer.password = input.password;
+        customer.save();
+        return createGeneralResponse({
+          ok: true,
+          message: RESPONSES.CUSTOMER.PASSWORD_CHANGED,
+        });
+      } catch (error) {
+        return createGeneralResponse({
+          ok: false,
+          error: convertError(error),
+        });
+      }
+    },
+    updateCustomerSettings: async (parent, { input }, { user }) => {
+      try {
+        const { customerId } = input;
+        if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+        await connectDatabase();
+        console.log('updateCustomerSettings', input);
+
+        // TODO: check for accounts in db for this customer/code
+        await Customer.findOneAndUpdate(
           { _id: input.customerId },
-          { password: input.password },
+          { settings: { ...omit(input, ['customerId']) } },
           {
             upsert: false,
           }
         );
 
+        const customer = await Customer.findById(customerId).populate(
+          cartPopulateObject
+        );
+
+        return createCustomerResponse({
+          ok: true,
+          customer,
+        });
+
         if (!customer)
           throw new Error('No customer found with the provided information.');
 
-        return;
-      } catch (error) {}
+        return createCustomerResponse({
+          ok: true,
+          customer,
+        });
+      } catch (error) {
+        return createCustomerResponse({
+          ok: true,
+          error: convertError(error),
+        });
+      }
     },
     createCustomer: async (parent, { input }, { isAdmin }) => {
       try {
@@ -62,9 +115,6 @@ module.exports = {
         let customer = await Customer.create({
           ...input,
         });
-
-        customer = customer.toObject();
-        customer.id = customer._id;
 
         return createCustomerResponse({
           ok: true,
@@ -81,19 +131,15 @@ module.exports = {
       try {
         const { customerId } = input;
         if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
-
         await connectDatabase();
 
-        let customer = await Customer.findOneAndUpdate(
-          { _id: customerId },
-          input,
-          {
-            upsert: false,
-          }
-        );
+        await Customer.findOneAndUpdate({ _id: customerId }, input, {
+          upsert: false,
+        });
 
-        customer = customer.toObject();
-        customer.id = customer._id;
+        const customer = await Customer.findById(customerId).populate(
+          cartPopulateObject
+        );
 
         return createCustomerResponse({
           ok: true,
@@ -150,6 +196,123 @@ module.exports = {
           error: convertError(error),
         });
       }
+    },
+    addRxToCart: async (parent, { input }, { isAdmin, user }) => {
+      try {
+        await connectDatabase();
+
+        const customer = await Customer.findById(user._id).populate(
+          cartPopulateObject
+        );
+
+        input.rx = input.rxId;
+
+        const existingCartItem = customer.cart.find((c) => {
+          return c.rx.toString() === input.rxId;
+        });
+
+        if (existingCartItem)
+          throw new Error(ERRORS.CUSTOMER.RX_ALREADY_EXISTS_IN_CART);
+
+        customer.cart.push({
+          rx: input.rx,
+          quantity: input.quantity,
+          price: input.price,
+        });
+
+        await customer.save();
+
+        const updatedCustomer = await Customer.findById(user._id).populate(
+          cartPopulateObject
+        );
+
+        // console.log('publishing', CART_MODIFIED);
+        // pubsub.publish(CART_MODIFIED, { cartModified: response });
+        return createCustomerResponse({
+          ok: true,
+          customer: updatedCustomer,
+        });
+      } catch (error) {
+        console.log('error', error);
+        return createCustomerResponse({
+          ok: false,
+          error,
+        });
+      }
+    },
+    removeRxFromCart: async (parent, { input }, { isAdmin, user }) => {
+      try {
+        await connectDatabase();
+        const customer = await Customer.findById(input.customerId).populate(
+          'cart'
+        );
+
+        console.log('customer before pull', customer.cart);
+        customer.cart.pull({ _id: input.rxId });
+
+        console.log('customer after pull', customer.cart);
+        await customer.save();
+
+        const updatedCustomer = await Customer.findById(
+          input.customerId
+        ).populate(cartPopulateObject);
+
+        console.log('updatedCustomer', updatedCustomer);
+        // pubsub.publish(CART_MODIFIED, { cartModified: response });
+        return createCustomerResponse({
+          ok: true,
+          customer: updatedCustomer,
+        });
+      } catch (error) {
+        console.log('error', error);
+        return createCustomerResponse({
+          ok: false,
+          error,
+        });
+      }
+    },
+    requestRefill: async (parent, { input }, { isAdmin, user }) => {
+      try {
+        await connectDatabase();
+        console.log('customerId', input.customerId);
+        const customer = await Customer.findById(input.customerId).populate(
+          cartPopulateObject
+        );
+
+        customer.cart = [];
+        await customer.save();
+        // handle refill
+        // create order from cart
+        // remove all items from cart
+        // return customer object with empty cart.
+        console.log('found customer');
+        return createCustomerResponse({
+          ok: true,
+          customer,
+        });
+      } catch (error) {
+        console.log('error', error);
+        return createCustomerResponse({
+          ok: false,
+          error,
+        });
+      }
+    },
+  },
+  Subscription: {
+    cartModified: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(CART_MODIFIED),
+        (payload, variables, { user }) => {
+          console.log(
+            'payload.cartModified.customer.id',
+            typeof payload.cartModified.customer.id
+          );
+          return (
+            payload.cartModified.customer.id.toString() === user.id.toString()
+          );
+        }
+      ),
     },
   },
 };

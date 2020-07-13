@@ -6,6 +6,7 @@ const { generateToken } = require('../utils/authentication');
 const Customer = require('../models/Customer');
 const connectDatabase = require('../models/connectDatabase');
 const { createTokenResponse } = require('../utils/responses');
+const { cartPopulateObject } = require('../utils/populateObjects');
 
 module.exports = {
   Query: {
@@ -16,7 +17,9 @@ module.exports = {
     ) => {
       try {
         await connectDatabase();
-        const customer = await Customer.findOne({ email });
+        const customer = await Customer.findOne({ email }).populate(
+          cartPopulateObject
+        );
 
         if (!customer)
           throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
@@ -41,6 +44,7 @@ module.exports = {
         return createTokenResponse({
           ok: true,
           token,
+          customer,
         });
       } catch (error) {
         return createTokenResponse({

@@ -6,6 +6,7 @@ module.exports.ERRORS = {
     EMAIL_AND_PASSWORD_INCORRECT:
       'Email and password combination is incorrect.',
     ACCOUNT_EMAIL_TAKEN: 'Email address already associated with an account.',
+    RX_ALREADY_EXISTS_IN_CART: 'The Rx is already in your cart',
   },
   DOCTOR: {
     NOT_FOUND_WITH_PROVIDED_INFO:
@@ -15,5 +16,6 @@ module.exports.ERRORS = {
   RX: {
     NOT_FOUND_WITH_PROVIDED_INFO: 'No Rx found with the provided information.',
     NOT_FOUND: 'No Rx found.',
+    NO_MORE_REFILLS_ALLOWED: 'Maximum refills reached.',
   },
 };

@@ -8,7 +8,7 @@ const Mail = require('../models/Mail');
 const connectDatabase = require('../models/connectDatabase');
 const { createDoctorResponse } = require('../utils/responses');
 const { pick, omit } = require('lodash');
-const addressFields = ['address', 'address2', 'city', 'state', 'zipCode'];
+
 module.exports = {
   Query: {
     getDoctorById: async (parent, { doctorId }, { isAdmin }) => {
@@ -45,11 +45,9 @@ module.exports = {
           address,
         });
 
-        console.log('doctor', doctor.transform());
-
         return createDoctorResponse({
           ok: true,
-          doctor: doctor.transform(),
+          doctor: doctor,
         });
       } catch (error) {
         return createDoctorResponse({

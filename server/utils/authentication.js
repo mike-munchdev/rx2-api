@@ -6,7 +6,6 @@ const connectDatabase = require('../models/connectDatabase');
 module.exports.validateToken = (token, secret) => {
   return new Promise((resolve, reject) => {
     try {
-      console.log('token, secret', token, secret);
       const decoded = jwt.verify(token, secret);
 
       resolve(decoded);
@@ -22,6 +21,7 @@ module.exports.findCustomerByToken = (decoded) => {
       if (decoded.info.id) {
         await connectDatabase();
         const customer = await Customer.findById(decoded.info.id);
+
         resolve(customer);
       } else {
         throw new Error('Malformed token');

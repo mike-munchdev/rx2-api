@@ -6,12 +6,13 @@ const typeDefs = gql`
     id: ID!
     rxNumber: String
     numberOfRefillsAllowed: Int
+    filledDate: Date!
     refills: [Refills!]
     dosage: String!
     daySupply: Int!
     doctor: Doctor
     drug: Drug!
-    customerId: String
+    customer: Customer!
     createdAt: Date!
   }
 
@@ -36,6 +37,7 @@ const typeDefs = gql`
     drugId: String!
     doctorId: String!
     customerId: String!
+    filledDate: Date!
   }
 
   input UpdateRxInput {
@@ -46,7 +48,15 @@ const typeDefs = gql`
     directions: String
     drugId: String
     doctorId: String
+    customerId: String
     rxId: String!
+    filledDate: Date
+  }
+
+  input RefillRxInput {
+    rxId: String!
+    pharmacyId: String
+    filledDate: Date
   }
 
   type Query {
@@ -57,6 +67,7 @@ const typeDefs = gql`
   type Mutation {
     createRx(input: CreateRxInput!): RxResponse
     updateRx(input: UpdateRxInput!): RxResponse
+    refillRx(input: RefillRxInput!): RxResponse
   }
 `;
 

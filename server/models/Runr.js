@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 const isPhone = require('is-phone');
-const { addressSchema } = require('./subDocuments');
 
 const Schema = mongoose.Schema;
 
-const DoctorSchema = new Schema({
+const RunrSchema = new Schema({
   email: {
     type: String,
     validate: {
@@ -14,10 +13,10 @@ const DoctorSchema = new Schema({
     },
     unique: true,
   },
+  password: { type: String, required: false },
   firstName: { type: String, required: false },
   middleName: { type: String, required: false },
   lastName: { type: String, required: false },
-  prefix: { type: String, required: false },
   suffix: { type: String, required: false },
   phoneNumber: {
     type: String,
@@ -27,22 +26,28 @@ const DoctorSchema = new Schema({
     },
     required: false,
   },
-  address: addressSchema,
+  googleId: { type: String },
+  facebookId: { type: String },
+  isActive: { type: Boolean, default: false },
+  confirmToken: { type: String },
+  thumbnailUri: { type: String },
+  available: {
+    type: Boolean,
+    default: true,
+  },
+  assigned: [String],
+  delivered: [String],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-  isActive: { type: Boolean, default: false },
 });
 
-DoctorSchema.method('transform', function () {
-  let obj = this.toObject();
-  console.log('doctor transform');
-  //Rename fields
-  obj.address.id = obj.address._id;
-  obj.id = obj._id;
-  delete obj._id;
-  delete obj.address._id;
-
-  return obj;
+// TODO: encrypt password in database;
+RunrSchema.pre('save', async function () {
+  const runr = this;
+  if (runr.isModified('password')) {
+    const { hashPassword } = require('../utils/authentication');
+    runr.password = await hashPassword(runr.password);
+  }
 });
 
-module.exports = mongoose.model('Doctor', DoctorSchema);
+module.exports = mongoose.model('Runr', RunrSchema);

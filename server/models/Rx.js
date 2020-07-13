@@ -2,22 +2,25 @@ const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 const { refillsSchema } = require('./subDocuments');
 
-const RxSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const RxSchema = new Schema({
   rxNumber: { type: String },
   numberOfRefillsAllowed: { type: Number },
   refills: [refillsSchema],
   dosage: { type: String },
   daySupply: { type: Number },
   directions: { type: String },
-  drugId: { type: mongoose.Schema.Types.ObjectId, ref: 'Drug' },
-  doctorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
-  customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  drug: { type: Schema.Types.ObjectId, ref: 'Drug' },
+  doctor: { type: Schema.Types.ObjectId, ref: 'Doctor' },
+  customer: { type: Schema.Types.ObjectId, ref: 'Customer' },
+  filledDate: { type: Date },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
 RxSchema.method('transform', function () {
-  var obj = this.toObject();
+  let obj = this.toObject();
   console.log('rx transform');
   //Rename fields
 

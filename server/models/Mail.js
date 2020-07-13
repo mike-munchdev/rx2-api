@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 
-const MailSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const MailSchema = new Schema({
   mailFrom: { type: String, required: true },
   mailTo: { type: [String], required: true },
   cc: [String],

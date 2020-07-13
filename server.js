@@ -53,17 +53,23 @@ const { importDrugs } = require('./server/utils/importDrugs');
     subscriptions: {
       onConnect: async (connectionParams, webSocket) => {
         try {
-          if (connectionParams['x-auth']) {
-            if (connectionParams['x-auth'] === process.env.PASSTHROUGH_TOKEN)
-              return { isAdmin: true };
+          const token =
+            connectionParams['x-auth'] || connectionParams['headers']
+              ? connectionParams['headers']['x-auth']
+              : null;
 
-            const decoded = await validateToken(connectionParams['x-auth']);
+          if (token) {
+            if (token === process.env.PASSTHROUGH_TOKEN)
+              return { isAdmin: true };
+            const decoded = await validateToken(token, process.env.JWT_SECRET);
+
             const user = await findCustomerByToken(decoded);
 
             return { user, isAdmin: false };
           }
           throw new Error('Missing auth token!');
         } catch (e) {
+          console.log('subscriptions: error', e);
           throw e;
         }
       },

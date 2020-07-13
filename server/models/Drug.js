@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 
-const DrugSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const DrugSchema = new Schema({
   marketing_start_date: { type: String },
   marketing_end_date: { type: String },
   product_type: { type: String },
