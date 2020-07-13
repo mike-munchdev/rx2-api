@@ -2,7 +2,11 @@ module.exports.RESPONSES = {
   CUSTOMER: {
     SIGNUP_SUCCESSFUL:
       'Success!  You should receive an email within the next few minutes to confirm your account.',
+    RX_ADDED: 'Rx added successfully',
+    RX_REMOVED: 'Rx removed successfully.',
+    PASSWORD_CHANGED: 'Password changed.',
   },
+
   EMAIL: {
     SIGN_UP_EMAIL: {
       subject: 'Confirm Your Account',

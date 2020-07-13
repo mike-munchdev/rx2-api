@@ -18,9 +18,10 @@ module.exports.validateToken = (token, secret) => {
 module.exports.findCustomerByToken = (decoded) => {
   return new Promise(async (resolve, reject) => {
     try {
-      if (decoded.info.code) {
+      if (decoded.info.id) {
         await connectDatabase();
         const customer = await Customer.findById(decoded.info.id);
+
         resolve(customer);
       } else {
         throw new Error('Malformed token');

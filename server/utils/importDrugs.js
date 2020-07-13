@@ -28,11 +28,15 @@ module.exports.importDrugs = async () => {
       console.log(`Parsing JSON from ${uri}.`);
 
       const { results } = JSON.parse(drugs);
-      const activeDrugs = results.filter((d) => d.finished === true);
-      console.log('Deleting old data.');
+      // const activeDrugs = results.filter(
+      //   (d) =>
+      //     d.finished === true && d.product_type === 'HUMAN PRESCRIPTION DRUG'
+      // );
+      // const activeDrugs = results.filter((d) => 1 === 1);
+      // console.log('Deleting old data.');
 
-      console.log(`Adding ${activeDrugs.length} records.`);
-      await asyncForEach(activeDrugs, async (drug, index, array) => {
+      console.log(`Processing ${results.length} records.`);
+      await asyncForEach(results, async (drug, index, array) => {
         await Drug.findOneAndUpdate({ product_id: drug.product_id }, drug, {
           upsert: true,
         });

@@ -1,9 +1,16 @@
 const mongoose = require('mongoose');
 const { default: validatorF } = require('validator');
 const isPhone = require('is-phone');
-const { addressSchema, paymentTypeSchema } = require('./subDocuments');
+const {
+  addressSchema,
+  paymentMethodSchema,
+  shoppingCartSchema,
+  settingsSchema,
+} = require('./subDocuments');
 
-const CustomerSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const CustomerSchema = new Schema({
   email: {
     type: String,
     validate: {
@@ -26,14 +33,17 @@ const CustomerSchema = new mongoose.Schema({
     required: false,
   },
   addresses: [addressSchema],
-  paymentMethods: [addressSchema],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  paymentMethods: [paymentMethodSchema],
+  cart: [shoppingCartSchema],
+  settings: settingsSchema,
   stripeId: { type: String },
   googleId: { type: String },
   facebookId: { type: String },
   isActive: { type: Boolean, default: false },
   confirmToken: { type: String },
+  thumbnailUri: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
 // TODO: encrypt password in database;
@@ -43,6 +53,43 @@ CustomerSchema.pre('save', async function () {
     const { hashPassword } = require('../utils/authentication');
     customer.password = await hashPassword(customer.password);
   }
+});
+
+CustomerSchema.method('transform', function () {
+  let obj = this.toObject();
+  console.log('CustomerSchema transform');
+  //Rename fields
+  if (obj.addresses) {
+    obj.addresses = obj.addresses.map((a) => {
+      a.id = a._id;
+      delete a._id;
+      return a;
+    });
+  }
+  obj.id = obj._id;
+
+  if (obj.cart) {
+    obj.cart = obj.cart.map((c) => {
+      c.id = c._id;
+      delete c._id;
+
+      c.rx.id = c.rx._id;
+      delete c.rx._id;
+      if (c.rx.drug) {
+        c.rx.drug.id = c.rx.drug._id;
+        delete c.rx.drug._id;
+      }
+      return c;
+    });
+  }
+  if (obj.settings) {
+    obj.settings.id = obj.settings._id;
+    delete obj.settings._id;
+  }
+
+  delete obj._id;
+  delete obj.password;
+  return obj;
 });
 
 module.exports = mongoose.model('Customer', CustomerSchema);

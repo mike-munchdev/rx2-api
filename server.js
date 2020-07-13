@@ -19,7 +19,7 @@ const typeDefs = require('./server/schemas/index');
 
 // Provide resolver functions for your schema fields
 const resolvers = require('./server/resolvers/index');
-// const { importDrugs } = require('./server/utils/importDrugs');
+const { importDrugs } = require('./server/utils/importDrugs');
 
 (async () => {
   // initialize server
@@ -53,17 +53,23 @@ const resolvers = require('./server/resolvers/index');
     subscriptions: {
       onConnect: async (connectionParams, webSocket) => {
         try {
-          if (connectionParams['x-auth']) {
-            if (connectionParams['x-auth'] === process.env.PASSTHROUGH_TOKEN)
-              return { isAdmin: true };
+          const token =
+            connectionParams['x-auth'] || connectionParams['headers']
+              ? connectionParams['headers']['x-auth']
+              : null;
 
-            const decoded = await validateToken(connectionParams['x-auth']);
+          if (token) {
+            if (token === process.env.PASSTHROUGH_TOKEN)
+              return { isAdmin: true };
+            const decoded = await validateToken(token, process.env.JWT_SECRET);
+
             const user = await findCustomerByToken(decoded);
 
             return { user, isAdmin: false };
           }
           throw new Error('Missing auth token!');
         } catch (e) {
+          console.log('subscriptions: error', e);
           throw e;
         }
       },

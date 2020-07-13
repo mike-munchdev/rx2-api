@@ -5,6 +5,7 @@ const typeDefs = gql`
   type TokenResponse {
     ok: Boolean!
     token: String
+    customer: Customer
     error: Error
   }
 

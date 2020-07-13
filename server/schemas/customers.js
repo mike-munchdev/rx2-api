@@ -9,12 +9,18 @@ const typeDefs = gql`
     middleName: String
     lastName: String!
     suffix: String
-    phoneNumber: String!
+    phoneNumber: String
     addresses: [Address!]
     paymentMethods: [PaymentMethods!]
+    cart: [ShoppingCart!]
     stripeId: String
     googleId: String
     facebookId: String
+    isActive: Boolean
+    confirmToken: String
+    thumbnailUri: String
+    createdAt: Date!
+    settings: CustomerSetting
   }
 
   type CustomerResponse {
@@ -41,9 +47,15 @@ const typeDefs = gql`
     lastName: String
     suffix: String
     phoneNumber: String
+    isActive: Boolean
   }
 
-  input UpdateCustomerPassword {
+  input UpdateCustomerSettingsInput {
+    customerId: String!
+    searchDistance: Int!
+  }
+
+  input UpdateCustomerPasswordInput {
     customerId: String!
     password: String!
   }
@@ -52,16 +64,40 @@ const typeDefs = gql`
     email: String!
     password: String!
   }
+  input AddItemToCartInput {
+    rxId: String!
+    quantity: Int
+    price: Float
+  }
+
+  input RemoveRxFromCartInput {
+    customerId: String!
+    rxId: String!
+  }
+
+  input RequestRefillInput {
+    customerId: String!
+    isDelivery: Boolean
+  }
 
   type Query {
-    getCustomerById(customerId: String!): CustomerResponse
+    getCustomerById(customerId: String!): CustomerResponse!
   }
 
   type Mutation {
-    createCustomer(input: CreateCustomerInput!): CustomerResponse
-    updateCustomer(input: UpdateCustomerInput!): CustomerResponse
-    updateCustomerPassword(input: UpdateCustomerPassword!): GeneralResponse
+    createCustomer(input: CreateCustomerInput!): CustomerResponse!
+    updateCustomer(input: UpdateCustomerInput!): CustomerResponse!
+    updateCustomerPassword(input: UpdateCustomerPasswordInput!): GeneralResponse
+    updateCustomerSettings(
+      input: UpdateCustomerSettingsInput!
+    ): CustomerResponse!
     customerSignup(input: CustomerSignupInput!): GeneralResponse
+    addRxToCart(input: AddItemToCartInput!): CustomerResponse!
+    removeRxFromCart(input: RemoveRxFromCartInput!): CustomerResponse!
+    requestRefill(input: RequestRefillInput!): CustomerResponse!
+  }
+  type Subscription {
+    cartModified: CustomerResponse
   }
 `;
 
