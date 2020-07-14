@@ -8,6 +8,10 @@ const typeDefs = gql`
     labeler_name: String
     generic_name: String
   }
+
+  type Mutation {
+    importDrugs: GeneralResponse
+  }
 `;
 
 module.exports = typeDefs;

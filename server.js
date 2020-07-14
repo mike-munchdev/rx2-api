@@ -42,9 +42,14 @@ const { importDrugs } = require('./server/utils/importDrugs');
   app.use(bodyParser.json());
   app.use(express.static(path.join(__dirname, 'public')));
 
+  const playground = process.env.GRAPHQL_PLAYGROUND_ENABLED === 'true';
+  const introspection = process.env.GRAPHQL_INTROSPECTION_ENABLED === 'true';
+
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    introspection,
+    playground,
     context,
     formatError: (err) => {
       console.log('graphql: error', err);

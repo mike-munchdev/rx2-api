@@ -18,4 +18,7 @@ module.exports.ERRORS = {
     NOT_FOUND: 'No Rx found.',
     NO_MORE_REFILLS_ALLOWED: 'Maximum refills reached.',
   },
+  AUTH: {
+    DENIED: 'Access denied',
+  },
 };
