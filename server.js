@@ -71,8 +71,10 @@ const { importDrugs } = require('./server/utils/importDrugs');
             const user = await findCustomerByToken(decoded);
 
             return { user, isAdmin: false };
+          } else {
+            return {};
           }
-          throw new Error('Missing auth token!');
+          // throw new Error('Missing auth token!');
         } catch (e) {
           console.log('subscriptions: error', e);
           throw e;
