@@ -32,7 +32,7 @@ module.exports = {
         if (!isMatch)
           throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
 
-        console.log('generateToken: customer', customer);
+        // console.log('generateToken: customer', customer);
         const token = await generateToken({
           user: {
             displayName: `${customer.firstName} ${customer.lastName}`,
