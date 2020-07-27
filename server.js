@@ -58,11 +58,14 @@ const { importDrugs } = require('./server/utils/importDrugs');
     subscriptions: {
       onConnect: async (connectionParams, webSocket) => {
         try {
-          const token =
-            connectionParams['x-auth'] || connectionParams['headers']
+          let token;
+          if (connectionParams['x-auth']) {
+            token = connectionParams['x-auth'];
+          } else {
+            token = connectionParams['headers']
               ? connectionParams['headers']['x-auth']
               : null;
-
+          }
           if (token) {
             if (token === process.env.PASSTHROUGH_TOKEN)
               return { isAdmin: true };

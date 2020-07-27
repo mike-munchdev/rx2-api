@@ -16,6 +16,7 @@ const typeDefs = gql`
     stripeId: String
     googleId: String
     facebookId: String
+    pushTokens: [String!]
     isActive: Boolean
     confirmToken: String
     thumbnailUri: String
@@ -80,6 +81,15 @@ const typeDefs = gql`
     isDelivery: Boolean
   }
 
+  input AddNewRxsToQueueInput {
+    customerId: String!
+    uris: [String!]
+  }
+  input AddPushToken {
+    customerId: String!
+    pushToken: String!
+  }
+
   type Query {
     getCustomerById(customerId: String!): CustomerResponse!
   }
@@ -93,6 +103,8 @@ const typeDefs = gql`
     ): CustomerResponse!
     customerSignup(input: CustomerSignupInput!): GeneralResponse
     addRxToCart(input: AddItemToCartInput!): CustomerResponse!
+    addNewRxsToQueue(input: AddNewRxsToQueueInput!): CustomerResponse!
+    addPushToken(input: AddPushToken!): CustomerResponse!
     removeRxFromCart(input: RemoveRxFromCartInput!): CustomerResponse!
     requestRefill(input: RequestRefillInput!): CustomerResponse!
   }

@@ -56,3 +56,9 @@ module.exports.pointSchema = new mongoose.Schema({
 module.exports.settingsSchema = new mongoose.Schema({
   searchDistance: { type: Number, default: 10 },
 });
+
+module.exports.newRxQueueSchema = new mongoose.Schema({
+  uri: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});

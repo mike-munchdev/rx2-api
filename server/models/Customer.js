@@ -6,6 +6,7 @@ const {
   paymentMethodSchema,
   shoppingCartSchema,
   settingsSchema,
+  newRxQueueSchema,
 } = require('./subDocuments');
 
 const Schema = mongoose.Schema;
@@ -35,12 +36,14 @@ const CustomerSchema = new Schema({
   addresses: [addressSchema],
   paymentMethods: [paymentMethodSchema],
   cart: [shoppingCartSchema],
+  queue: [newRxQueueSchema],
   settings: settingsSchema,
   stripeId: { type: String },
   googleId: { type: String },
   facebookId: { type: String },
   isActive: { type: Boolean, default: false },
   confirmToken: { type: String },
+  pushTokens: [String],
   thumbnailUri: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -82,6 +85,15 @@ CustomerSchema.method('transform', function () {
       return c;
     });
   }
+
+  if (obj.queue) {
+    obj.queue = obj.queue.map((q) => {
+      q.id = q._id;
+      delete q._id;
+      return q;
+    });
+  }
+
   if (obj.settings) {
     obj.settings.id = obj.settings._id;
     delete obj.settings._id;

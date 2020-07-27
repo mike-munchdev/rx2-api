@@ -29,7 +29,7 @@ const typeDefs = gql`
 
   type ShoppingCart {
     id: ID!
-    rx: Rx!
+    rx: Rx
     quantity: Int
     price: Float
   }

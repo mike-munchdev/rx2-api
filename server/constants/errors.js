@@ -7,6 +7,8 @@ module.exports.ERRORS = {
       'Email and password combination is incorrect.',
     ACCOUNT_EMAIL_TAKEN: 'Email address already associated with an account.',
     RX_ALREADY_EXISTS_IN_CART: 'The Rx is already in your cart',
+    RX_ALREADY_EXISTS_IN_QUEUE: 'The Rx is already in your queue',
+    PUSH_TOKEN_ALREADY_EXISTS: 'Push Token already exists',
   },
   DOCTOR: {
     NOT_FOUND_WITH_PROVIDED_INFO:

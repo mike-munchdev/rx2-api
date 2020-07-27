@@ -298,6 +298,87 @@ module.exports = {
         });
       }
     },
+
+    addNewRxsToQueue: async (parent, { input }, { isAdmin, user }) => {
+      try {
+        await connectDatabase();
+
+        const { customerId, uris } = input;
+        if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+        const customer = await Customer.findById(customerId).populate(
+          cartPopulateObject
+        );
+        if (!customer) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+
+        const existingQueueItem = customer.queue.find((q) => {
+          return uris.findIndex((u) => u === q.uri) >= 0;
+        });
+
+        if (existingQueueItem)
+          throw new Error(ERRORS.CUSTOMER.RX_ALREADY_EXISTS_IN_QUEUE);
+
+        customer.queue.push({
+          $each: input.uris.map((u) => ({
+            uri: u,
+          })),
+        });
+
+        await customer.save();
+
+        const updatedCustomer = await Customer.findById(
+          input.customerId
+        ).populate(cartPopulateObject);
+
+        return createCustomerResponse({
+          ok: true,
+          customer: updatedCustomer,
+        });
+      } catch (error) {
+        console.log('error', error);
+        return createCustomerResponse({
+          ok: false,
+          error,
+        });
+      }
+    },
+    addPushToken: async (parent, { input }, { isAdmin, user }) => {
+      try {
+        await connectDatabase();
+        console.log('addPushToken', input);
+        const { customerId, pushToken } = input;
+        if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+        const customer = await Customer.findById(customerId).populate(
+          cartPopulateObject
+        );
+        if (!customer) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+
+        const existingPushToken = customer.pushTokens.find((t) => {
+          return t === pushToken;
+        });
+
+        if (!existingPushToken)
+          throw new Error(ERRORS.CUSTOMER.PUSH_TOKEN_ALREADY_EXISTS);
+
+        customer.pushTokens.push(pushToken);
+
+        await customer.save();
+
+        const updatedCustomer = await Customer.findById(
+          input.customerId
+        ).populate(cartPopulateObject);
+
+        return createCustomerResponse({
+          ok: true,
+          customer: updatedCustomer,
+        });
+      } catch (error) {
+        console.log('error', error);
+        return createCustomerResponse({
+          ok: false,
+          error,
+        });
+      }
+    },
   },
   Subscription: {
     cartModified: {

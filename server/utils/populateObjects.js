@@ -12,6 +12,9 @@ module.exports.cartPopulateObject = {
   },
 };
 
+module.exports.queuePopulateObject = {
+  path: 'queue',
+};
 module.exports.addressPopulateObject = {
   path: 'address',
 };
