@@ -35,7 +35,7 @@ module.exports.createPharmacy = ({ input }) => {
   return new Promise(async (resolve, reject) => {
     try {
       await connectDatabase();
-      console.log('input', input);
+
       const address = pick(input, addressFields);
       const pharmacyFields = omit(input, addressFields);
 
@@ -44,11 +44,8 @@ module.exports.createPharmacy = ({ input }) => {
         address,
       });
 
-      console.log('createPharmacy: pharmacy', pharmacy);
-
       resolve(pharmacy);
     } catch (e) {
-      console.log('createPharmacy: e', e);
       reject(e);
     }
   });
@@ -70,7 +67,6 @@ module.exports.updatePharmacy = ({ input }) => {
       const newPharmacyDb = await db.pharmacies.findByPk(existingPharmacy.id);
       resolve(newPharmacyDb);
     } catch (e) {
-      console.log('e', e);
       reject(e);
     }
   });

@@ -10,7 +10,7 @@ const typeDefs = gql`
     lastName: String!
     suffix: String
     phoneNumber: String
-    addresses: [Address!]
+    address: Address
     paymentMethods: [PaymentMethods!]
     cart: [ShoppingCart!]
     stripeId: String
@@ -27,6 +27,7 @@ const typeDefs = gql`
   type CustomerResponse {
     ok: Boolean!
     customer: Customer
+    pushToken: String
     error: Error
   }
 
@@ -49,6 +50,11 @@ const typeDefs = gql`
     suffix: String
     phoneNumber: String
     isActive: Boolean
+    streetInfo: String
+    unitInfo: String
+    city: String
+    state: String
+    zipCode: String
   }
 
   input UpdateCustomerSettingsInput {
@@ -62,6 +68,8 @@ const typeDefs = gql`
   }
 
   input CustomerSignupInput {
+    firstName: String!
+    lastName: String!
     email: String!
     password: String!
   }
@@ -107,6 +115,7 @@ const typeDefs = gql`
     addPushToken(input: AddPushToken!): CustomerResponse!
     removeRxFromCart(input: RemoveRxFromCartInput!): CustomerResponse!
     requestRefill(input: RequestRefillInput!): CustomerResponse!
+    activateCustomerAccount(confirmToken: String!): GeneralResponse
   }
   type Subscription {
     cartModified: CustomerResponse

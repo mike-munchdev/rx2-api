@@ -14,11 +14,10 @@ module.exports = {
     getPharmacies: async (parent, { input }, { isAdmin }) => {
       try {
         await connectDatabase();
-        console.log('getPharmacies');
+
         const pharmacies = await Pharmacies.find().populate('hours');
         // .populate('address', 'address');
 
-        console.log('pharmacies', pharmacies);
         return createPharmaciesResponse({
           ok: true,
           pharmacies,

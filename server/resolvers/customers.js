@@ -19,6 +19,7 @@ const {
   cartPopulateObject,
   settingsPopulateObject,
 } = require('../utils/populateObjects');
+const { sendMail } = require('../utils/mailer');
 
 module.exports = {
   Query: {
@@ -49,9 +50,8 @@ module.exports = {
       try {
         await connectDatabase();
         // TODO: check for accounts in db for this customer/code
-        console.log('updateCustomerPassword');
+
         let customer = await Customer.findById(input.customerId);
-        console.log('customer', customer);
 
         if (!customer)
           throw new Error('No customer found with the provided information.');
@@ -74,7 +74,6 @@ module.exports = {
         const { customerId } = input;
         if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
         await connectDatabase();
-        console.log('updateCustomerSettings', input);
 
         // TODO: check for accounts in db for this customer/code
         await Customer.findOneAndUpdate(
@@ -132,8 +131,24 @@ module.exports = {
         const { customerId } = input;
         if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
         await connectDatabase();
+        const updates = {
+          ...omit(input, [
+            'streetInfo',
+            'unitInfo',
+            'city',
+            'state',
+            'zipCode',
+          ]),
+          address: pick(input, [
+            'streetInfo',
+            'unitInfo',
+            'city',
+            'state',
+            'zipCode',
+          ]),
+        };
 
-        await Customer.findOneAndUpdate({ _id: customerId }, input, {
+        await Customer.findOneAndUpdate({ _id: customerId }, updates, {
           upsert: false,
         });
 
@@ -172,23 +187,48 @@ module.exports = {
           }),
         });
 
-        // TODO: add mail to queue
-        const mail = await Mail.create({
+        const mailObject = {
           mailFrom: process.env.MAIL_FROM_ADDRESS,
           mailTo: customer.email,
           subject: RESPONSES.EMAIL.SIGN_UP_EMAIL.subject,
-          html: RESPONSES.EMAIL.SIGN_UP_EMAIL.body
-            .replace(
-              '{REGISTER_URL}',
-              `${process.env.REGISTER_URL}/${customer.confirmToken}`
-            )
-            .replace('{COMPANY_INFO}', `${process.env.COMPANY_INFO}`)
-            .replace('{SOCIAL_MEDIA_LINKS}', ''),
-        });
+          body: `<ol>
+                  <li>Return to the App.</li>
+                  <li>Press the 'Activate Your Account' link</li>
+                  <li>Enter your confirmation token: ${customer.confirmToken}</li>
+                  <li>Press the 'Activate Your Account' button</li>
+                  </ol>`,
+        };
+        // TODO: add mail to queue
+        const mail = await Mail.create(mailObject);
 
+        sendMail(mailObject);
         return createGeneralResponse({
           ok: true,
           message: RESPONSES.CUSTOMER.SIGNUP_SUCCESSFUL,
+        });
+      } catch (error) {
+        return createGeneralResponse({
+          ok: false,
+          error: convertError(error),
+        });
+      }
+    },
+    activateCustomerAccount: async (parent, { confirmToken }, { isAdmin }) => {
+      try {
+        console.log('activateCustomerAccount');
+        await connectDatabase();
+
+        // TODO: check for confirm token
+        const customer = await Customer.findOne({ confirmToken });
+        if (!customer) throw new Error(ERRORS.CUSTOMER.CONFIRM_TOKEN_NOT_FOUND);
+
+        customer.isActive = true;
+        customer.confirmToken = null;
+        await customer.save();
+
+        return createGeneralResponse({
+          ok: true,
+          message: RESPONSES.CUSTOMER.ACCOUNT_ACTIVATED,
         });
       } catch (error) {
         return createGeneralResponse({
@@ -225,7 +265,6 @@ module.exports = {
         const updatedCustomer = await Customer.findById(user._id).populate(
           cartPopulateObject
         );
-
         // console.log('publishing', CART_MODIFIED);
         // pubsub.publish(CART_MODIFIED, { cartModified: response });
         return createCustomerResponse({
@@ -233,7 +272,6 @@ module.exports = {
           customer: updatedCustomer,
         });
       } catch (error) {
-        console.log('error', error);
         return createCustomerResponse({
           ok: false,
           error,
@@ -246,25 +284,19 @@ module.exports = {
         const customer = await Customer.findById(input.customerId).populate(
           'cart'
         );
-
-        console.log('customer before pull', customer.cart);
         customer.cart.pull({ _id: input.rxId });
-
-        console.log('customer after pull', customer.cart);
         await customer.save();
 
         const updatedCustomer = await Customer.findById(
           input.customerId
         ).populate(cartPopulateObject);
 
-        console.log('updatedCustomer', updatedCustomer);
         // pubsub.publish(CART_MODIFIED, { cartModified: response });
         return createCustomerResponse({
           ok: true,
           customer: updatedCustomer,
         });
       } catch (error) {
-        console.log('error', error);
         return createCustomerResponse({
           ok: false,
           error,
@@ -274,7 +306,7 @@ module.exports = {
     requestRefill: async (parent, { input }, { isAdmin, user }) => {
       try {
         await connectDatabase();
-        console.log('customerId', input.customerId);
+
         const customer = await Customer.findById(input.customerId).populate(
           cartPopulateObject
         );
@@ -285,13 +317,12 @@ module.exports = {
         // create order from cart
         // remove all items from cart
         // return customer object with empty cart.
-        console.log('found customer');
+
         return createCustomerResponse({
           ok: true,
           customer,
         });
       } catch (error) {
-        console.log('error', error);
         return createCustomerResponse({
           ok: false,
           error,
@@ -334,7 +365,6 @@ module.exports = {
           customer: updatedCustomer,
         });
       } catch (error) {
-        console.log('error', error);
         return createCustomerResponse({
           ok: false,
           error,
@@ -344,9 +374,10 @@ module.exports = {
     addPushToken: async (parent, { input }, { isAdmin, user }) => {
       try {
         await connectDatabase();
-        console.log('addPushToken', input);
+
         const { customerId, pushToken } = input;
         if (!customerId) throw new Error(ERRORS.CUSTOMER.NOT_FOUND);
+
         const customer = await Customer.findById(customerId).populate(
           cartPopulateObject
         );
@@ -356,12 +387,11 @@ module.exports = {
           return t === pushToken;
         });
 
-        if (!existingPushToken)
-          throw new Error(ERRORS.CUSTOMER.PUSH_TOKEN_ALREADY_EXISTS);
+        if (existingPushToken !== pushToken) {
+          customer.pushTokens.push(pushToken);
 
-        customer.pushTokens.push(pushToken);
-
-        await customer.save();
+          await customer.save();
+        }
 
         const updatedCustomer = await Customer.findById(
           input.customerId
@@ -372,7 +402,6 @@ module.exports = {
           customer: updatedCustomer,
         });
       } catch (error) {
-        console.log('error', error);
         return createCustomerResponse({
           ok: false,
           error,
@@ -385,10 +414,6 @@ module.exports = {
       subscribe: withFilter(
         () => pubsub.asyncIterator(CART_MODIFIED),
         (payload, variables, { user }) => {
-          console.log(
-            'payload.cartModified.customer.id',
-            typeof payload.cartModified.customer.id
-          );
           return (
             payload.cartModified.customer.id.toString() === user.id.toString()
           );

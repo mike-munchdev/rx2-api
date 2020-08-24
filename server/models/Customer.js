@@ -33,7 +33,7 @@ const CustomerSchema = new Schema({
     },
     required: false,
   },
-  addresses: [addressSchema],
+  address: addressSchema,
   paymentMethods: [paymentMethodSchema],
   cart: [shoppingCartSchema],
   queue: [newRxQueueSchema],
@@ -62,13 +62,13 @@ CustomerSchema.method('transform', function () {
   let obj = this.toObject();
   console.log('CustomerSchema transform');
   //Rename fields
-  if (obj.addresses) {
-    obj.addresses = obj.addresses.map((a) => {
-      a.id = a._id;
-      delete a._id;
-      return a;
-    });
-  }
+  // if (obj.addresses) {
+  //   obj.addresses = obj.addresses.map((a) => {
+  //     a.id = a._id;
+  //     delete a._id;
+  //     return a;
+  //   });
+  // }
   obj.id = obj._id;
 
   if (obj.cart) {

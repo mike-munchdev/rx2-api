@@ -17,9 +17,13 @@ module.exports = {
     ) => {
       try {
         await connectDatabase();
+
         const customer = await Customer.findOne({ email }).populate(
           cartPopulateObject
         );
+
+        if (!customer.isActive)
+          throw new Error(ERRORS.CUSTOMER.ACCOUNT_NOT_ACTIVATED);
 
         if (!customer)
           throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
@@ -32,7 +36,6 @@ module.exports = {
         if (!isMatch)
           throw new Error(ERRORS.CUSTOMER.EMAIL_AND_PASSWORD_INCORRECT);
 
-        // console.log('generateToken: customer', customer);
         const token = await generateToken({
           user: {
             displayName: `${customer.firstName} ${customer.lastName}`,
