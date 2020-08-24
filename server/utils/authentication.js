@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Customer = require('../models/Customer');
 const connectDatabase = require('../models/connectDatabase');
+const { default: Bugsnag } = require('@bugsnag/js');
 
 module.exports.validateToken = (token, secret) => {
   return new Promise((resolve, reject) => {
@@ -76,6 +77,6 @@ module.exports.hashPassword = async (password) => {
     const hash = await bcrypt.hash(password, salt);
     return hash;
   } catch (error) {
-    console.log('hashPassword error', error);
+    Bugsnag.notify(e);
   }
 };

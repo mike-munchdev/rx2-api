@@ -9,6 +9,8 @@ module.exports.ERRORS = {
     RX_ALREADY_EXISTS_IN_CART: 'The Rx is already in your cart',
     RX_ALREADY_EXISTS_IN_QUEUE: 'The Rx is already in your queue',
     PUSH_TOKEN_ALREADY_EXISTS: 'Push Token already exists',
+    ACCOUNT_NOT_ACTIVATED: 'Account not activated.',
+    CONFIRM_TOKEN_NOT_FOUND: 'Confirm token not found.',
   },
   DOCTOR: {
     NOT_FOUND_WITH_PROVIDED_INFO:

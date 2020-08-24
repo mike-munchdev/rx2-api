@@ -35,13 +35,11 @@ module.exports = {
       try {
         await connectDatabase();
 
-        // console.log('user.id', user.id);
         // TODO: check for accounts in db for this rx/code
         const rxs = await Rx.find({ customer: user.id })
           .populate('drug', 'brand_name labeler_name generic_name')
           .populate('customer', 'firstName lastName')
           .populate('doctor', 'firstName lastName middleName prefix');
-        // console.log('rxs', rxs);
 
         return createRxsResponse({
           ok: true,

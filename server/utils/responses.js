@@ -1,11 +1,12 @@
 const { pharmacyTransform } = require('./pharmacies');
+const { default: Bugsnag } = require('@bugsnag/js');
 
 module.exports.createCustomerResponse = ({
   ok,
   customer = null,
   error = null,
 }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     customer: customer,
@@ -18,7 +19,7 @@ module.exports.createGeneralResponse = ({
   message = null,
   error = null,
 }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     message,
@@ -32,7 +33,7 @@ module.exports.createTokenResponse = ({
   customer = null,
   error = null,
 }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     token,
@@ -41,7 +42,7 @@ module.exports.createTokenResponse = ({
   };
 };
 module.exports.createRxResponse = ({ ok, rx = null, error = null }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     rx: rx ? rx.transform() : rx,
@@ -49,7 +50,7 @@ module.exports.createRxResponse = ({ ok, rx = null, error = null }) => {
   };
 };
 module.exports.createDoctorResponse = ({ ok, doctor = null, error = null }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     doctor: doctor.transform(),
@@ -57,7 +58,7 @@ module.exports.createDoctorResponse = ({ ok, doctor = null, error = null }) => {
   };
 };
 module.exports.createRxsResponse = ({ ok, rxs = null, error = null }) => {
-  if (error) console.log('error', error);
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     rxs,
@@ -69,17 +70,21 @@ module.exports.createPharmacyResponse = ({
   ok,
   pharmacy = null,
   error = null,
-}) => ({
-  ok,
-  pharmacy: pharmacy,
-  error,
-});
+}) => {
+  if (error) Bugsnag.notify(error);
+  return {
+    ok,
+    pharmacy: pharmacy,
+    error,
+  };
+};
 
 module.exports.createPharmaciesResponse = ({
   ok,
   pharmacies = null,
   error = null,
 }) => {
+  if (error) Bugsnag.notify(error);
   return {
     ok,
     pharmacies:

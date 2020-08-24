@@ -7,8 +7,15 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { ApolloServer } = require('apollo-server-express');
 const context = require('./server/utils/context');
-const helment = require('helmet');
+const helmet = require('helmet');
+const Bugsnag = require('@bugsnag/js');
+const BugsnagPluginExpress = require('@bugsnag/plugin-express');
+Bugsnag.start({
+  apiKey: process.env.BUG_SNAG_API_KEY,
+  plugins: [BugsnagPluginExpress],
+});
 
+const middleware = Bugsnag.getPlugin('express');
 const {
   validateToken,
   findCustomerByToken,
@@ -24,7 +31,18 @@ const { importDrugs } = require('./server/utils/importDrugs');
 (async () => {
   // initialize server
   const app = express();
-  app.use(helment());
+  app.use(helmet());
+
+  // This must be the first piece of middleware in the stack.
+  // It can only capture errors in downstream middleware
+  app.use(middleware.requestHandler);
+
+  /* all other middleware and application routes go here */
+
+  // This handles any errors that Express catches. This needs to go before other
+  // error handlers. Bugsnag will call the `next` error handler if it exists.
+  app.use(middleware.errorHandler);
+
   const allowedOrigin = process.env.CORS_URL
     ? process.env.CORS_URL.split(',')
     : [''];
@@ -52,7 +70,7 @@ const { importDrugs } = require('./server/utils/importDrugs');
     playground,
     context,
     formatError: (err) => {
-      console.log('graphql: error', err);
+      Bugsnag.notify(err);
       return err;
     },
     subscriptions: {
@@ -79,7 +97,7 @@ const { importDrugs } = require('./server/utils/importDrugs');
           }
           // throw new Error('Missing auth token!');
         } catch (e) {
-          console.log('subscriptions: error', e);
+          Bugsnag.notify(e);
           throw e;
         }
       },

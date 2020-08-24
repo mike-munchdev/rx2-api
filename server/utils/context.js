@@ -4,6 +4,7 @@ const {
   ForbiddenError,
 } = require('apollo-server-express');
 const { validateToken, findCustomerByToken } = require('./authentication');
+const { default: Bugsnag } = require('@bugsnag/js');
 
 module.exports = async (args) => {
   try {
@@ -20,11 +21,12 @@ module.exports = async (args) => {
         // admin pass-through
         if (token === process.env.PASSTHROUGH_TOKEN)
           return { req, res: args.res, isAdmin: true };
-        // console.log('arr', arr[1]);
+
         if (arr.length)
           if (
             arr[1].includes('getCustomerTokenByEmailAndPassword(') ||
             arr[1].includes('customerSignup(') ||
+            arr[1].includes('activateCustomerAccount(') ||
             arr[0].includes('query IntrospectionQuery {')
           ) {
             return { req, res: args.res };
@@ -51,13 +53,12 @@ module.exports = async (args) => {
         throw new SchemaError('Schema invalid');
       }
     } else {
-      // console.log('web socket request');
       const isAdmin = args.connection.context.isAdmin;
       const user = args.connection.context.user;
       return { user, isAdmin };
     }
   } catch (e) {
-    console.log(e);
+    Bugsnag.notify(e);
     throw e;
   }
 };

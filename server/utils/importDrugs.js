@@ -3,6 +3,7 @@ const JSZip = require('jszip');
 const asyncForEach = require('./asyncForEach');
 const Drug = require('../models/Drug');
 const connectDatabase = require('../models/connectDatabase');
+const { default: Bugsnag } = require('@bugsnag/js');
 
 module.exports.importDrugs = async () => {
   return new Promise(async (resolve, reject) => {
@@ -45,7 +46,7 @@ module.exports.importDrugs = async () => {
 
       resolve();
     } catch (error) {
-      console.log('Error loading drugs', error);
+      Bugsnag.notify(error);
       reject(error);
     }
   });
